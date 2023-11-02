@@ -34,7 +34,6 @@ export const blogReducer = (state, action) => {
           const existingBlogIndex = mergedBlogs.findIndex(
             (blog) => blog._id === newBlog._id
           );
-      
           
           if (existingBlogIndex !== -1) {
             mergedBlogs[existingBlogIndex] = newBlog;
@@ -42,13 +41,17 @@ export const blogReducer = (state, action) => {
             mergedBlogs.push(newBlog);
           }
         });
-
-        // dispatch({ type: "BLOGS", payload: mergedBlogs });
       
         return {
           blogs: mergedBlogs,
         };
 
+        case "SEARCH":
+          return {
+            ...state,
+            search: action.payload, // Assuming action.payload is a string
+          };
+        
     default:
       return state;
   }

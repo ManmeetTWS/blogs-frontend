@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 function Home() {
   return (
-    <div className='Home' style={{display: 'flex', flexDirection:'column', width:'1000px', textAlign:"justify", alignItems:'center', justifyContent:'center', height:'100vh', margin:'0 auto'}}>
+    <div className='Home' style={{display: 'flex', flexDirection:'column', width:'1300px', textAlign:"justify", alignItems:'center', justifyContent:'center', height:'100vh', margin:'0 auto'}}>
         <h1 style={{margin:'20px 0 5px'}}>Welcome to BlogApp</h1>
         <p style={{marginBottom:'20px'}}>Explore the World of Knowledge and Inspiration</p>
 

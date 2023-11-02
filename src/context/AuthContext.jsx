@@ -11,6 +11,38 @@ export const authReducer = (state,action) => {
 
         case 'LOGOUT':
             return { userData:null }
+
+
+        case 'ADD_BOOKMARK':
+            if (!state.userData) return state;
+          
+            const updatedUser = {
+                ...state.userData,
+                user:{
+                    ...state.userData.user,
+                    bookmarks: [...state.userData.user.bookmarks, action.payload]
+                }
+                
+            };
+          
+            return {
+                userData: updatedUser
+            };
+
+        case 'REMOVE_BOOKMARK':
+            if (!state.userData) return state;
+          
+            const updatedUserRemove = {
+                ...state.userData,
+                user:{
+                    ...state.userData.user,
+                    bookmarks: state.userData.user.bookmarks.filter(blogId => blogId !== action.payload)
+                }
+            };
+          
+            return {
+                userData: updatedUserRemove
+            };
             
         default:
             return state

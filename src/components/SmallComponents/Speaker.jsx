@@ -1,81 +1,218 @@
-import React, { useState, useEffect } from 'react';
-import { HiSpeakerWave, HiSpeakerXMark } from 'react-icons/hi2';
-import './Speaker.css';
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { useState, useEffect } from "react";
+import "./Speaker.css";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Button } from "@mui/material";
 
-function Speaker({ text }) {
-  const [isSpeaking, setIsSpeaking] = useState(false);
-  const [speechSynthesisUtterance, setSpeechSynthesisUtterance] = useState(null);
+function Speaker({ text, title }) {
+  const [isPaused, setIsPaused] = useState(false);
+  const [utterance, setUtterance] = useState(null);
+  const [voice, setVoice] = useState(null);
+  const [pitch, setPitch] = useState(1);
+  const [rate, setRate] = useState(1);
+  const [volume, setVolume] = useState(1);
+  const [playbackState, setPlaybackState] = useState("idle");
 
-  const temp = document.createElement('div');
+  const temp = document.createElement("div");
   temp.innerHTML = text;
-  const textContent = temp.textContent;
+  const textContent = "Title : " + title + temp.textContent;
 
   useEffect(() => {
-    if (isSpeaking) {
-      startSpeech();
+    const synth = window.speechSynthesis;
+    const u = new SpeechSynthesisUtterance(textContent);
+    const voices = synth.getVoices();
+
+    setUtterance(u);
+    setVoice(voices[0]);
+
+    // Attach the onend event handler after setting the utterance
+    u.onend = () => {
+      setPlaybackState("idle");
+    };
+
+    synth.onvoiceschanged = () => {
+      const voices = synth.getVoices();
+      setVoice(voices.find((v) => v.lang.startsWith("en-")));
+    };
+
+    return () => {
+      synth.cancel();
+    };
+  }, [title, text]);
+
+  const handlePlay = () => {
+    const synth = window.speechSynthesis;
+
+    if (isPaused) {
+      synth.resume();
+      setPlaybackState("playing");
     } else {
-      stopSpeech();
-    }
-  }, [isSpeaking, text]);
-
-  function startSpeech() {
-    try {
-      const synth = window.speechSynthesis;
-      const utterance = new SpeechSynthesisUtterance(textContent);
-
-      setSpeechSynthesisUtterance(utterance);
-
+      utterance.voice = voice;
+      utterance.pitch = pitch;
+      utterance.rate = rate;
+      utterance.volume = volume;
       synth.speak(utterance);
-
-      utterance.onstart = () => {
-        console.log('Speech started');
-      };
-
-      utterance.onend = () => {
-        console.log('Speech ended');
-        setIsSpeaking(false);
-      };
-
-      utterance.onerror = (error) => {
-        console.error('Speech error:', error);
-        toast.error(error);
-      };
-    } catch (error) {
-      console.error('Text-to-speech error:', error);
-      toast.error(error);
+      setPlaybackState("playing");
     }
-  }
 
-  function stopSpeech() {
-    if (speechSynthesisUtterance) {
-      window.speechSynthesis.cancel();
+    setIsPaused(false);
+  };
+
+  const handlePause = () => {
+    const synth = window.speechSynthesis;
+
+    if (playbackState === "playing") {
+      synth.pause();
+      setPlaybackState("paused");
+    } else if (playbackState === "paused") {
+      synth.resume();
+      setPlaybackState("playing");
     }
-  }
+  };
 
-  const handleToggleSpeech = () => {
-    setIsSpeaking((prevIsSpeaking) => !prevIsSpeaking);
+  const handleStop = () => {
+    const synth = window.speechSynthesis;
+    synth.cancel();
+    setPlaybackState("idle");
+    setIsPaused(false);
+  };
+
+
+  const handleVoiceChange = (event) => {
+    const voices = window.speechSynthesis.getVoices();
+    setVoice(voices.find((v) => v.name === event.target.value));
+    
+  };
+
+  const handlePitchChange = (event) => {
+    setPitch(parseFloat(event.target.value));
+    handleStop()
+    handlePlay()  
+  };
+
+  const handleRateChange = (event) => {
+    setRate(parseFloat(event.target.value));
+    handleStop()
+    handlePlay()
+  };
+
+  const handleVolumeChange = (event) => {
+    setVolume(parseFloat(event.target.value));
+    handleStop()
+    handlePlay()
   };
 
   return (
-    <div className="textospeech">
-      {isSpeaking ? (
-        <HiSpeakerWave
-          onClick={handleToggleSpeech}
-          className="speaker-icon-on"
-          style={{ fontSize: '30px', margin: '15px 0', cursor: 'pointer' }}
-        />
-      ) : (
-        <HiSpeakerXMark
-          onClick={handleToggleSpeech}
-          className="speaker-icon-off"
-          style={{ fontSize: '30px', margin: '15px 0', cursor: 'pointer' }}
-        />
-      )}
-      {/* <div className="speakerInfo">
-        <p>Click to {isSpeaking ? 'Pause' : 'Listen to'} this Blog</p>
-      </div> */}
+    <div className="textospeech" style={{ margin: "10px 0" }}>
+      <div className="voice" style={{ textAlign: "center" }}>
+        <label>Voice:</label>
+        <select value={voice?.name} onChange={handleVoiceChange}>
+          {window.speechSynthesis
+            .getVoices()
+            .filter((voice) => voice.lang.startsWith("en-")) // Filter English voices
+            .map((voice) => (
+              <option key={voice.name} value={voice.name}>
+                {voice.name}
+              </option>
+            ))}
+        </select>
+      </div>
+
+      <br />
+
+      <div
+        className="controls"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-evenly",
+        }}
+      >
+        <label style={{ display: "flex", alignItems: "center" }}>
+          Pitch:
+          <input
+            type="range"
+            min="0.5"
+            max="2"
+            step="0.1"
+            value={pitch}
+            onChange={handlePitchChange}
+          />
+        </label>
+
+        <label style={{ display: "flex", alignItems: "center" }}>
+          Speed:
+          <input
+            type="range"
+            min="0.5"
+            max="2"
+            step="0.1"
+            value={rate}
+            onChange={handleRateChange}
+          />
+        </label>
+
+        <label style={{ display: "flex", alignItems: "center" }}>
+          Volume:
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.1"
+            value={volume}
+            onChange={handleVolumeChange}
+          />
+        </label>
+      </div>
+
+      <div
+        className="ctrl-btns"
+        style={{
+          margin: "20px 0 0",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        {playbackState === "playing" && (
+          <Button
+            variant="contained"
+            sx={{ margin: "0 15px" }}
+            onClick={handlePause}
+          >
+            Pause
+          </Button>
+        )}
+
+        {playbackState === "paused" && (
+          <Button
+            variant="contained"
+            sx={{ margin: "0 15px" }}
+            onClick={handlePause}
+          >
+            Resume
+          </Button>
+        )}
+
+        {playbackState === "idle" && (
+          <Button
+            variant="contained"
+            sx={{ margin: "0 15px" }}
+            onClick={handlePlay}
+          >
+            Play
+          </Button>
+        )}
+
+        <Button
+          variant="contained"
+          sx={{ margin: "0 15px" }}
+          onClick={handleStop}
+        >
+          Stop
+        </Button>
+      </div>
+
       <ToastContainer
         position="bottom-right"
         autoClose={4000}
@@ -93,3 +230,6 @@ function Speaker({ text }) {
 }
 
 export default Speaker;
+
+
+

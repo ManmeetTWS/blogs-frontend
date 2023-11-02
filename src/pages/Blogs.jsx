@@ -11,7 +11,7 @@ import axios from 'axios';
 function Blogs() {
   const [start, setStart] = useState(0);
   const [nth, setNth] = useState(2);
-  const { getBlogs, loading, error } = useBlogs(start);
+  const { getBlogs, loading, error, total } = useBlogs(start);
   const {blogs,dispatch} = useBlogContext();
   const [data, setData] = useState([]);
   const [end, setEnd] = useState(false);
@@ -20,7 +20,11 @@ function Blogs() {
     toast.error(error)
   }
 
-  useEffect(() => { setData(blogs)}, [blogs])
+
+  useEffect(() => { 
+    setData(blogs);
+    // setChecked(true);
+  }, [blogs])
 
   useEffect(() => {
     getBlogs();
@@ -29,7 +33,6 @@ function Blogs() {
   }, []);
 
   const getMoreBlogs = async () => {
-    console.log("Start : ", start)
     try {
       
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}api/blogs`, {start})
@@ -56,12 +59,15 @@ function Blogs() {
         style={{ maxWidth: "1000px", paddingTop: "100px", margin: "0px auto" }}
       >
         {loading && <div className="loading"><p style={{fontSize:'30px'}}>Loading . . . </p></div>} 
-        {data?.map((blog) => (
-          <Blog data={blog} key={blog._id} />
+        {data?.length === 0 && <div><h2>No Blogs yet.</h2></div> }
+        {data?.map((blog, index) => (
+          
+            <Blog data={blog} key={blog._id} />
+          
         ))}
 
-        {!end && !loading &&  <div className="show-more" style={{marginLeft:"20px"}}>
-          <Button onClick={getMoreBlogs} variant="contained" disabled={loading ? true : false}>{loading ? 'Loading . . .' : 'Show More'}</Button>
+        {!end && !loading && total > 6 && <div className="show-more" style={{marginLeft:"20px", marginBottom:"50px",marginRight:"30px", width:"100%"}}>
+          <Button onClick={getMoreBlogs} sx={{width:"100%", borderRadius:"60px", color:"#000", backgroundColor:"rgba(0,0,0,0.2)", ":hover":{backgroundColor:"rgba(0,0,0,0.4)", color:"#fff"}, transition:".1s linear"}} disabled={loading ? true : false}>{loading ? 'Loading . . .' : 'Load More'}</Button>
         </div>}
       </div>
 

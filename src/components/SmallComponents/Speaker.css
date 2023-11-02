@@ -26,3 +26,12 @@
   height: 12px;
   background-color: rgb(58, 58, 58);
 }
+
+.transcript-word {
+  color: #333; /* Default color for words */
+  cursor: pointer;
+}
+
+.transcript-word.active {
+  color: blue; /* Color for the active (clicked) word */
+}

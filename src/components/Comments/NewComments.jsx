@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import { CircularProgress} from '@mui/material';
+import { CircularProgress, Button} from '@mui/material';
 import axios from 'axios';
 import "./Comments.css";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
@@ -25,7 +25,7 @@ function NewComments({blog_id, user_id, username}) {
     setRepliesCount(allComments.map((comment) => comment.replyCount));
   }, [allComments]);
 
-  useEffect(() => console.log("Replies Count - ",repliesCount), [repliesCount])
+  // useEffect(() => console.log("Replies Count - ",repliesCount), [repliesCount])
 
 
   useEffect(() => {
@@ -46,7 +46,7 @@ function NewComments({blog_id, user_id, username}) {
       }
     } catch (error) {
       setLoading(false);
-      console.log(error);
+      // console.log(error);
     }
   }
 
@@ -109,7 +109,7 @@ function NewComments({blog_id, user_id, username}) {
         toast.error(response.data.error);
       }
     } catch (error) {
-      console.log(error)
+      // console.log(error)
       toast.error("Internal Server Error");
     }
   };
@@ -177,7 +177,7 @@ function NewComments({blog_id, user_id, username}) {
                   </span>
                 </p>
                 <div
-                  style={{ fontSize: "22px" }}
+                  style={{ fontSize: "22px", margin:"10px 0 30px" }}
                   dangerouslySetInnerHTML={{ __html: comment.commentText }}
                 />           
 
@@ -207,7 +207,8 @@ function NewComments({blog_id, user_id, username}) {
             }}
           />
           <div className="cs-btn">
-            <button
+            <Button
+              variant='contained'
               onClick={userData ? handleAddComment : (e) => {e.preventDefault(); toast.error("Log in to add a Comment!")}}
               style={{
                 fontSize: "14px",
@@ -218,7 +219,7 @@ function NewComments({blog_id, user_id, username}) {
               }}
             >
               {loading ? <CircularProgress /> : 'Add Comment'}
-            </button>
+            </Button>
           </div>
 
         </div>

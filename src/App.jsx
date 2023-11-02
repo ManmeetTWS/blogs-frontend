@@ -10,6 +10,10 @@ import CreateBlog from "./pages/CreateBlog";
 import BlogDetail from "./pages/BlogDetail";
 import BlogsByYou from "./pages/BlogsByYou";
 import UpdateBlog from "./pages/UpdateBlog";
+import SearchResults from "./pages/SearchResults";
+import Bookmarks from "./pages/Bookmarks";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   const { userData } = useAuthContext();
@@ -39,6 +43,8 @@ function App() {
             element={<Blogs />}
           />
 
+          <Route path="/search-blog/:query" element={<SearchResults />}/>
+
           <Route
             path="/blog/:id"
             element={<BlogDetail />}
@@ -49,6 +55,10 @@ function App() {
             element={userData ? <UpdateBlog /> : <Navigate to="/" />}
           />
 
+          <Route 
+            path="/bookmarks"
+            element={userData ? <Bookmarks /> : <Navigate to="/login" />}
+          />
 
           <Route
             path={`/yourBlogs`}
@@ -58,6 +68,18 @@ function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </div>
+      <ToastContainer
+        position="bottom-right"
+        autoClose={4000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </BrowserRouter>
   );
 }

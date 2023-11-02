@@ -3,7 +3,7 @@ import { LuReply } from "react-icons/lu";
 import { FaTrashAlt } from "react-icons/fa";
 import { VscTriangleDown } from "react-icons/vsc";
 import { useState } from "react";
-import { CircularProgress } from '@mui/material';
+import { CircularProgress, Button } from '@mui/material';
 import { useAuthContext } from "../../hooks/useAuthContext";
 import axios from 'axios';
 import { ToastContainer, toast } from "react-toastify";
@@ -18,7 +18,6 @@ function NewReplySection({replyCount, replyData, index, setAllComments, comment_
   const [replyToggle, setReplyToggle] = useState(false);
   const [showReplyToggle, setShowReplyToggle] = useState(false);
   const [loading, setLoading] = useState(false);  
-  
   
 
   const handleAddReply = async (e) => {
@@ -49,7 +48,6 @@ function NewReplySection({replyCount, replyData, index, setAllComments, comment_
           const newReply = response.data;
           setReplyText('');
   
-          // Update the allComments array by mapping through it
           setAllComments((prevComments) =>
             prevComments.map((comment, idx) => {
               if (idx === index) {
@@ -76,35 +74,79 @@ function NewReplySection({replyCount, replyData, index, setAllComments, comment_
   };
 
 
+  // const handleRemoveReply = async (reply_id) => {
+  //   try {
+  //     const response = await axios.delete(`${import.meta.env.VITE_BASE_URL}api/replies/deleteReply`, {
+  //       data: { reply_id }, 
+  //       headers: {
+  //         authorization: `Bearer ${userData?.token}`,
+  //       },
+  //     })
+
+  //     if (response.status === 200) {
+  //       const deletedReplyId = response.data.deletedReply._id;
+        
+  //       setAllComments((prevComments) =>
+  //         prevComments.map((comment, idx) => {
+  //           if(idx === index) {
+
+  //           }
+  //         })
+  //       );
+        
+  
+  //       toast.success("Reply Deleted!");
+  //     }
+
+  //   } catch (error) {
+  //     toast.error("Internal Server Error");
+  //   }
+  // }
+  
   const handleRemoveReply = async (reply_id) => {
     try {
-      const response = await axios.delete(`${import.meta.env.VITE_BASE_URL}api/replies/deleteReply`, {
-        data: { reply_id }, 
-        headers: {
-          authorization: `Bearer ${userData?.token}`,
-        },
-      })
-
+      const response = await axios.delete(
+        `${import.meta.env.VITE_BASE_URL}api/replies/deleteReply`,
+        {
+          data: { reply_id },
+          headers: {
+            authorization: `Bearer ${userData?.token}`,
+          },
+        }
+      );
+  
       if (response.status === 200) {
         const deletedReplyId = response.data.deletedReply._id;
-        
-        setCount(count - 1);
-        // Filter out the deleted comment from the allComments array
-        setReplyData((prevReplies) =>
-          prevReplies.filter((reply) => reply._id !== deletedReplyId)
+  
+        setAllComments((prevComments) =>
+          prevComments.map((comment, idx) => {
+            if (idx === index) {
+              // If this is the target comment, update its replies and replyCount
+              return {
+                ...comment,
+                replies: comment.replies.filter(
+                  (reply) => reply._id !== deletedReplyId
+                ), // Filter out the deleted reply
+                replyCount: comment.replyCount - 1, // Decrement replyCount
+              };
+            }
+            return comment; // Return other comments as they are
+          })
         );
   
         toast.success("Reply Deleted!");
       }
-
     } catch (error) {
       toast.error("Internal Server Error");
     }
-  }
+  };
+  
+  
 
 
   return (
     <div className="replySection" style={{ marginTop: "20px" }}>
+      {/* <hr style={{margin:"10px 0"}}/> */}
       <div
         className="rs-btns"
         style={{
@@ -174,7 +216,8 @@ function NewReplySection({replyCount, replyData, index, setAllComments, comment_
               setReplyText(e.target.value);
             }}
           />
-            <button
+            <Button
+            variant='contained'
             style={{
               padding: "4px 15px",
               margin: "14px 0 8px",
@@ -182,8 +225,8 @@ function NewReplySection({replyCount, replyData, index, setAllComments, comment_
             }}
             onClick={userData ? handleAddReply : (e) => {e.preventDefault(); toast.error("Log in to add a reply!");}}
           >
-            Send
-          </button>
+            Add Reply
+          </Button>
           
           </form>
       </div>
