@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { useLogin } from '../hooks/useLogin';
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {Link} from 'react-router-dom'
 
@@ -30,18 +30,6 @@ function Login() {
             <p>Create new account. <Link to='/signup'>Signup Now.</Link></p>
         </form>
         <Link to='/blogApp'style={{padding:"8px 15px", margin:"20px", backgroundColor:"#ddd", borderRadius:"8px", color:"#000"}}>See Blogs</Link>
-        <ToastContainer
-        position="bottom-right"
-        autoClose={4000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
     </div>
   )
 }

@@ -15,6 +15,8 @@ import NewComments from "../components/Comments/NewComments";
 import {FacebookShareButton, FacebookIcon ,TwitterShareButton,  RedditShareButton, RedditIcon, LinkedinShareButton, LinkedinIcon} from 'react-share';
 import {FaXTwitter} from 'react-icons/fa6';
 import {IoLinkSharp} from 'react-icons/io5';
+import { convertJsonToHtml } from "../utils/jsonToHtml";
+
 
 function BlogDetail() {
   const { id } = useParams();
@@ -24,20 +26,27 @@ function BlogDetail() {
   const [likeLoading,setLikeLoading] = useState(false);
   const [error, setError] = useState(null);
   const [data, setData] = useState(null);
+  const [blogData, setBlogData] = useState('');
   const { dispatch } = useBlogContext();
   const [likeCount,setLikeCount] = useState(0);
   const [likeStatus, setLikeStatus] = useState('');
   const [comments,setComments] = useState([]);
   const [wordPerMinute, setWordPerMinute] = useState(225);
   const [readTime, setReadTime] = useState(null);
+  const [showReadTime, setShowReadTime] = useState(false);
+  const [showAudioOption, setShowAudioOption] = useState(false); 
 
   const [open, setOpen] = useState(false);
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
+  const handleShowReadTime = () => setShowReadTime(true);
+  const handleHideReadTime = () => setShowReadTime(false);
+  const handleShowAudioOption = () => setShowAudioOption(true);
+  const handleHideAudioOption = () => setShowAudioOption(false);
 
   useEffect(() => {
     if(data?.blogData) {
-      const wordCount = data?.blogData.split(' ').length;
+      const wordCount = blogData.split(' ').length;
       const result = calculateReadTime(wordCount, wordPerMinute);
       if(result !== 0 && result > 0){
         setReadTime(result)
@@ -130,6 +139,7 @@ function BlogDetail() {
         if (response.status === 200) {
           setLoading(false);
           setData(response.data);
+          setBlogData(convertJsonToHtml(JSON.parse(response.data.blogData)))
           const likedByUser = response.data.blogLikes.some(
             (like) => like === userData?.user._id
           );
@@ -182,32 +192,30 @@ function BlogDetail() {
 
       <div
         className="details"
-        style={{ maxWidth: "1000px", paddingTop: "120px", margin: "0px auto" }}
+        style={{ maxWidth: "650px", paddingTop: "120px", margin: "0px auto" }}
       >
-
-        <div className="getReadTime" style={{border:"1px solid #000", padding:"20px", borderRadius:"10px"}}>
-          <label htmlFor="readTime" style={{fontSize:"16px"}}>Enter Average word count you can read in a minute to find Read Time: </label>
-          <input type="number" value={wordPerMinute} min={1} style={{padding:"0px 5px", fontSize:"16px", borderRadius:"5px", border:"1px solid #333"}} onChange={(e) => setWordPerMinute(e.target.value)} />
-          {readTime !== null && readTime!==Infinity && <div className="result">Calculated Read Time : {readTime} {readTime > 1 ? "minutes" : "minute"}</div>}
-          {readTime === Infinity && <div>Please enter values greater than 0</div>}
-        </div>
-        
-        <div style={{margin:"30px 0", padding:"20px", border:"1px solid #333", borderRadius:"10px"}}>
-          <h3 style={{textAlign:"center"}}>Play this blog </h3>
-          <Speaker text={data?.blogData} title={data?.blogTitle}/>
+        <div style={{display:"flex"}}>
+          <div className="read-time-option">
+            <p style={{backgroundColor:"#1689ffbf", padding:"5px 15px", borderRadius:"50px", color:"#fff", cursor:"pointer", textAlign:"center"}} onClick={handleShowReadTime}>Calculate Read Time</p>
+          </div>
+          <div className="show-audio-option" style={{marginLeft:"20px"}}>
+          <p style={{backgroundColor:"#1689ffbf", padding:"5px 15px", borderRadius:"50px", color:"#fff", cursor:"pointer", textAlign:"center"}} onClick={handleShowAudioOption}>Listen to this Blog</p>
+          </div>
         </div>
 
         {data?.author === userData?.user.username ? (
         <div
           className="btns"
           style={{
-            maxWidth: "1000px",
+            maxWidth: "650px",
             paddingTop: "20px",
             margin: "0px auto",
+            display:"flex",
+            justifyContent:"flex-end"
           }}
         >
           
-          <Link to={`/blog/update/${id}`}>
+          <Link to={`/blog/update-editor/${id}`}>
             <Button variant="contained" style={{ padding: "4px 8px", marginRight: "20px" }}>
               Update
             </Button>
@@ -225,7 +233,7 @@ function BlogDetail() {
 
         <img src={data?.cover_image_url} alt="Image not found" style={{width:"100%", maxHeight:"700px", marginBottom:"20px"}}/>
 
-        <div dangerouslySetInnerHTML={{ __html: data?.blogData }} />
+        <div dangerouslySetInnerHTML={{ __html: blogData }} />
 
         <div className="blog-author">
           <h3 style={{ margin: "30px 0 20px" }}>Written by - {data?.author}</h3>
@@ -233,18 +241,11 @@ function BlogDetail() {
 
         <div className="tags" style={{display:'flex'}}>
           <h3>Tags: </h3>
-          {data?.tags && data?.tags.map((tag) => (
-            <Link to={`/search-blog/${tag}`}><Chip label={tag} variant="outlined" sx={{margin:"0 5px 20px", transition:".1s linear"}}/></Link>
+          {data?.tags && data?.tags.map((tag,index) => (
+            <Link key={index} to={`/search-blog/${tag}`}><Chip label={tag} variant="outlined" sx={{margin:"0 5px 20px", transition:".1s linear"}}/></Link>
           ))}
         </div>
         
-
-        {/* {data && <div className="likeBtn" style={{display:"flex", alignItems:"center"}}>
-          {likeLoading ? <CircularProgress /> : <button onClick={likeStatus === "Like" ? handleLikes : handleRemoveLike} style={{ padding: "4px 8px", display:'flex', alignItems:"center", cursor:"pointer"}}><FcLike style={{marginRight:"10px"}}/>{likeStatus}</button>}
-          <div className="t-likes">
-            <p style={{marginLeft:"20px"}}>Likes : {likeCount}</p>
-          </div>
-        </div>} */}
 
         {data && <div className="likeBtn" style={{display:"flex", alignItems:"center"}}>
           {likeLoading ? <CircularProgress /> : likeStatus === "Like" ? <div style={{display:"flex", alignItems:"center"}}><PiHeartBold  onClick={handleLikes} style={{fontSize:"30px", color:"red", cursor:"pointer" }} /> <span style={{fontSize:"20px", marginLeft:"10px"}}>{likeCount}</span></div> : <div style={{display:"flex", alignItems:"center"}}><PiHeartFill onClick={handleRemoveLike} style={{fontSize:"30px", color:"red", cursor:"pointer" }} />
@@ -252,7 +253,7 @@ function BlogDetail() {
           </div> }
         </div>}
 
-        <div className="share-icons" style={{display:"flex", alignItems:"center", marginTop:"10px"}}>
+        <div className="share-icons" style={{display:"flex", alignItems:"center", margin:"20px 0"}}>
           <p>Share this Blog : </p>
           <FacebookShareButton
           url={`${import.meta.env.VITE_FRONTEND_URL}/blog/${data?._id}`}
@@ -299,24 +300,6 @@ function BlogDetail() {
 
       </div>
 
-
-      {data?.author === userData?.user.username ? (
-        <div
-          className="btns"
-          style={{ maxWidth: "1000px", margin: "20px auto 50px" }}
-        >
-          <Link to={`/blog/update/${id}`}>
-          <Button variant="contained" style={{ padding: "4px 8px", marginRight: "20px" }}>
-            Update
-          </Button>
-          </Link>
-          <Button variant="outlined" onClick={handleOpen} style={{ padding: "4px 8px" }}>Delete</Button>
-        </div>
-      ) : (
-        <div style={{ width: "100%", margin: "20px 0 50px" }}></div>
-      )}
-
-      {/* <Comments blog_id={data?._id} comments={comments}/> */}
       <NewComments blog_id={data?._id} user_id = {userData?.user._id} username = {userData?.user.username}/>
 
       <Modal
@@ -342,6 +325,58 @@ function BlogDetail() {
               <Button variant="contained" onClick={handleDelete} sx={{marginLeft:"20px"}}>Confirm Delete</Button>
             </div>
         </Box>
+      </Modal>
+
+      <Modal
+        open={showReadTime}
+        onClose={handleHideReadTime}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+        sx={{
+          backdropFilter: 'blur(5px)',
+        }}
+      >
+        <Box sx={{position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: "400px",
+          height:"200px",
+          bgcolor: '#fff',
+          borderRadius:"10px",
+          boxShadow: 24,
+          p: 3,
+          display:"flex",
+          justifyContent:"space-around",
+          flexDirection:"column",
+          alignItems:"center",
+          }}>
+            <h3 style={{textAlign:"justify"}}>Enter Average word count you can read in a minute to find Read Time: </h3>
+            <input type="number" value={wordPerMinute} min={1} style={{padding:"3px 5px", fontSize:"16px", borderRadius:"5px", border:"1px solid #333", width:"100%"}} onChange={(e) => setWordPerMinute(e.target.value)} />
+            {readTime !== null && readTime!==Infinity && <div className="result" style={{textAlign:"center"}}>Calculated Read Time : {readTime} {readTime > 1 ? "minutes" : "minute"}</div>}
+            {readTime === Infinity && <div style={{textAlign:"center"}}>Please enter values greater than 0</div>}
+        </Box>
+      </Modal>
+
+      <Modal open={showAudioOption}
+        onClose={handleHideAudioOption}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+        sx={{
+          backdropFilter: 'blur(5px)',
+        }}>
+          <Box sx={{position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          bgcolor: '#fff',
+          borderRadius:"10px",
+          boxShadow: 24,
+          p: 3,
+          }}>
+            <h3 style={{textAlign:"center"}}>Play this blog </h3>
+            <Speaker text={blogData} title={data?.blogTitle}/>
+          </Box>
       </Modal>
 
       <ToastContainer

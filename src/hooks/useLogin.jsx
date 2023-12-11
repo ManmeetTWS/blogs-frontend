@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useAuthContext } from './useAuthContext'
+import { useNavigate } from "react-router-dom";
 import axios from 'axios';
 
 export const useLogin = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const { dispatch } = useAuthContext();
 
@@ -20,6 +22,7 @@ export const useLogin = () => {
                 setLoading(false);
                 dispatch({ type: "LOGIN", payload: response.data });
                 localStorage.setItem('userData', JSON.stringify(response.data));
+                navigate("/blogApp");
             } else {
                 setLoading(false);
                 setError("An error occurred while logging in."); // Generic error message

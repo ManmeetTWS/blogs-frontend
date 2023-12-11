@@ -5,9 +5,9 @@
     box-shadow:10px 20px 30px rgba(0,0,0,0.2);
     position: fixed;
     z-index: 999;
-    max-height: 84px;
+    max-height: 76px;
     overflow: hidden;
-    border-bottom: 1px solid #093D65;
+    /* border-bottom: 1px solid #093D65; */
 }
 
 .navbar-inner-content{
@@ -16,12 +16,12 @@
     justify-content: space-between;
     /* align-items: center ; */
     margin: 0 auto;
-    padding: 10px 0px;
+    padding: 0px 0px;
 }
 .navbar-inner-content > .items{
     display: flex;
     align-items: center;
-    margin-bottom: 30px;
+    /* margin-bottom: 30px; */
 }
 .navbar-inner-content>.items>.item{
     margin: 0 15px;

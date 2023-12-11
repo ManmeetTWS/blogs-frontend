@@ -105,7 +105,7 @@ function Speaker({ text, title }) {
   return (
     <div className="textospeech" style={{ margin: "10px 0" }}>
       <div className="voice" style={{ textAlign: "center" }}>
-        <label>Voice:</label>
+        <label style={{marginRight:"10px"}}>Voice:</label>
         <select value={voice?.name} onChange={handleVoiceChange}>
           {window.speechSynthesis
             .getVoices()
@@ -125,10 +125,10 @@ function Speaker({ text, title }) {
         style={{
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-evenly",
+          flexDirection:"column"
         }}
       >
-        <label style={{ display: "flex", alignItems: "center" }}>
+        <label style={{ display: "flex", alignItems: "center", marginBottom:"10px" }}>
           Pitch:
           <input
             type="range"
@@ -140,7 +140,7 @@ function Speaker({ text, title }) {
           />
         </label>
 
-        <label style={{ display: "flex", alignItems: "center" }}>
+        <label style={{ display: "flex", alignItems: "center", marginBottom:"10px" }}>
           Speed:
           <input
             type="range"
@@ -152,7 +152,7 @@ function Speaker({ text, title }) {
           />
         </label>
 
-        <label style={{ display: "flex", alignItems: "center" }}>
+        <label style={{ display: "flex", alignItems: "center", marginBottom:"10px" }}>
           Volume:
           <input
             type="range"

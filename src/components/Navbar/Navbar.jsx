@@ -22,7 +22,7 @@ function Navbar() {
   }
 
   const [searchQuery, setSearchQuery] = useState('');
-
+  // useEffect(() => {console.log(searchQuery)}, [searchQuery])
 
   const handleSearch = () => {
     if (searchQuery) {
@@ -106,7 +106,7 @@ function Navbar() {
             <Link to="/blogApp">Blogs</Link>
           </div>
           <div className="item">
-            <Link to="/createBlog">Create Blog</Link>
+            <Link to="/editor">Create Blog</Link>
           </div>
 
           <div className="item">

@@ -1,18 +1,15 @@
 import Navbar from "../components/Navbar/Navbar";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { CKEditor } from "@ckeditor/ckeditor5-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthContext } from "../hooks/useAuthContext";
 import { Box, Button, Chip } from "@mui/material";
 import axios from "axios";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import { blog_tags } from "../utils/blogTags";
-import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
-// import { FileUploader } from "react-drag-drop-files";
 import FileUpload from '../components/SmallComponents/FileUpload';
 
-// const fileTypes = ["JPG", "PNG"];
 
 
 function CreateBlog() {
@@ -25,9 +22,9 @@ function CreateBlog() {
   const [suggestedTags, setSuggestedTags] = useState([]);
   const [imageData, setImageData] = useState(null);
 
-  // useEffect(() => {
-  //   console.log(imageData);
-  // }, [imageData])
+  useEffect(() => {
+    console.log(blogData);
+  }, [blogData])
 
   const handleSubmit = async () => {
     if (blogTitle && blogData && tags?.length > 0 && imageData) {
@@ -273,18 +270,6 @@ function CreateBlog() {
         </Button>
       </div>
 
-      <ToastContainer
-        position="bottom-right"
-        autoClose={4000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="colored"
-      />
     </div>
   );
 }

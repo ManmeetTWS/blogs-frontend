@@ -11,7 +11,7 @@ import formatDistanceToNow from "date-fns/formatDistanceToNow";
 import NewReplySection from '../ReplySection/NewReplySection';
 
 
-function NewComments({blog_id, user_id, username}) {
+function NewComments({blog_id, user_id, username, preview}) {
 
   const [text, setText] = useState('');
   const {userData} = useAuthContext();
@@ -33,6 +33,10 @@ function NewComments({blog_id, user_id, username}) {
   }, [blog_id, user_id])
 
   const getAllComments = async (blog_id, user_id) => {
+    if(preview){
+      setAllComments([]);
+      return
+    }
     try {
       setLoading(true)
       const response = await axios.post(`${import.meta.env.VITE_BASE_URL}api/comment/getComments`, {blog_id, user_id});
@@ -52,6 +56,10 @@ function NewComments({blog_id, user_id, username}) {
 
 
   const handleAddComment = async () => {
+    if(preview){
+      toast.success("This is a preview. You can't add a comment here!");
+      return
+    }
     const requestData = {
       forBlog:blog_id,
       commentText:text,
@@ -119,7 +127,7 @@ function NewComments({blog_id, user_id, username}) {
     <div
       className="commentSection"
       style={{
-        maxWidth: "1000px",
+        maxWidth: "650px",
         margin: "0px auto",
       }}
     >
